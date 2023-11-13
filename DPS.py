@@ -91,8 +91,10 @@ macro_thread.daemon = True
 macro_thread.start()
 
 # Create the PySimpleGUI window
+sg.theme('Dark Blue 1')
+
 t0 = sg.Text("Run ID", )
-i1 = sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10), expand_x=True, justification='left')
+i1 = sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10), expand_x=True, justification='left', background_color=sg.theme_text_color())
 b1 = sg.Button('SET', key='-SET-', font=('Arial Bold', 10))
 t0_1 = sg.Text("Run ID: "), sg.Text("Run ID not set", size=(30, 1), key='-RUN-')
 t1 = sg.Text("Coordinate Data", font=('Arial Bold', 12))
