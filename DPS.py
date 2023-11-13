@@ -1,6 +1,5 @@
 import win32clipboard
 import keyboard
-import json
 import pyautogui
 import pydirectinput
 import PySimpleGUI as sg
@@ -9,6 +8,8 @@ import threading
 import requests
 import re
 from cryptography.fernet import Fernet
+import datetime
+import sys
 
 TRIGGER_KEY = 'altgr'
 ACTIVE_TRACKING = False
@@ -28,20 +29,22 @@ def decrypt_data(encrypted_data):
     decrypted_data = cipher_suite.decrypt(encrypted_data).decode('utf-8')
     return decrypted_data
 
-def send_data(x_value, y_value, z_value):
+def send_data(x_value, y_value, z_value, time):
     url = 'http://127.0.0.1:8000/postData/'
 
     encrypted_runID = encrypt_data(str(RUN_ID))
     encrypted_x = encrypt_data(str(x_value))
     encrypted_y = encrypt_data(str(y_value))
     encrypted_z = encrypt_data(str(z_value))
+    encrypted_time = encrypt_data(str(time))
 
     payload = {
         "data": {
             "run_id": encrypted_runID.decode('utf-8'),
             "x": encrypted_x.decode('utf-8'),
             "y": encrypted_y.decode('utf-8'),
-            "z": encrypted_z.decode('utf-8')
+            "z": encrypted_z.decode('utf-8'),
+            "time": encrypted_time.decode('utf-8')
         }
     }
 
@@ -70,12 +73,34 @@ def macro(e):
         pattern =  r"Coordinates: x:(-?\d+\.\d+) y:(-?\d+\.\d+) z:(-?\d+\.\d+)"
         match = re.search(pattern, coordinate_data)
 
+        Reference_time_UTC = datetime.datetime(2020, 1, 1)
+        Epoch = datetime.datetime(1970, 1, 1)
+        Reference_time = (Reference_time_UTC - Epoch).total_seconds()
+
+        try :
+            import ntplib
+            c = ntplib.NTPClient()
+            response = c.request('europe.pool.ntp.org', version=3)
+            server_time = response.tx_time
+
+            time_offset = response.offset
+        except:
+            print("Error: Could not get time from NTP server")
+            sys.stdout.flush()
+            time_offset = 0
+
+        # print('Time_offset:', time_offset)
+
+        New_time = time.time() + time_offset
+        Time_passed_since_reference_in_seconds = New_time - Reference_time
+
+        print(Time_passed_since_reference_in_seconds)
         if match and RUN_ID:
             x_value = float(match.group(1))
             y_value = float(match.group(2))
             z_value = float(match.group(3))
        
-            send_data(x_value, y_value, z_value)
+            send_data(x_value, y_value, z_value, Time_passed_since_reference_in_seconds)
 
             window['-X-'].update(x_value)
             window['-Y-'].update(y_value)
