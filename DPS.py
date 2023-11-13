@@ -12,7 +12,8 @@ from cryptography.fernet import Fernet
 
 TRIGGER_KEY = 'altgr'
 ACTIVE_TRACKING = False
-USER_ID = ''
+RUN_ID = ''
+MAXIMUM_CHARACTER_LENGTH = 10
 
 
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
@@ -30,12 +31,14 @@ def decrypt_data(encrypted_data):
 def send_data(x_value, y_value, z_value):
     url = 'http://127.0.0.1:8000/postData/'
 
+    encrypted_runID = encrypt_data(str(RUN_ID))
     encrypted_x = encrypt_data(str(x_value))
     encrypted_y = encrypt_data(str(y_value))
     encrypted_z = encrypt_data(str(z_value))
 
     payload = {
         "data": {
+            "run_id": encrypted_runID.decode('utf-8'),
             "x": encrypted_x.decode('utf-8'),
             "y": encrypted_y.decode('utf-8'),
             "z": encrypted_z.decode('utf-8')
@@ -67,7 +70,7 @@ def macro(e):
         pattern =  r"Coordinates: x:(-?\d+\.\d+) y:(-?\d+\.\d+) z:(-?\d+\.\d+)"
         match = re.search(pattern, coordinate_data)
 
-        if match:
+        if match and RUN_ID:
             x_value = float(match.group(1))
             y_value = float(match.group(2))
             z_value = float(match.group(3))
@@ -91,16 +94,17 @@ macro_thread.start()
 t0 = sg.Text("Run ID", )
 i1 = sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10), expand_x=True, justification='left')
 b1 = sg.Button('SET', key='-SET-', font=('Arial Bold', 10))
-t0_1 = sg.Text("Run ID: "), sg.Text("Run ID not set", size=(30, 1), key='-USER-')
+t0_1 = sg.Text("Run ID: "), sg.Text("Run ID not set", size=(30, 1), key='-RUN-')
 t1 = sg.Text("Coordinate Data", font=('Arial Bold', 12))
 t2 = sg.Text("X: "), sg.Text("", size=(30, 1), key='-X-')
 t3 = sg.Text("Y: "), sg.Text("", size=(30, 1), key='-Y-')
 t4 = sg.Text("Z: "), sg.Text("", size=(30, 1), key='-Z-')
-t5 = sg.Text("Output: "), sg.Text("", size=(30, 1), key='-OUTPUT-')
+t5 = sg.Text("Output: "), sg.Text("", size=(30, 1), key='-OUTPUT-', background_color='black')
 b2 = sg.Button('ENABLE/DISABLE', key='-ACTIVATE-', font=('Arial Bold', 10))
 t6 = sg.Text("INACTIVE", text_color='red', key='-STATUS-')
+b3 = sg.Button('UNDO LAST', key='-UNDO-', font=('Arial Bold', 10))
 
-layout = [[t0, i1, b1],[t0_1],[t1],[t2],[t3],[t4],[b2, t6],[t5]]
+layout = [[t0, i1, b1],[t0_1],[t1],[t2],[t3],[t4],[b3, b2, t6],[t5]]
 
 window = sg.Window("Daymar Positioning Service (DPS)", layout, margins=(100, 50))
 
@@ -108,14 +112,16 @@ window = sg.Window("Daymar Positioning Service (DPS)", layout, margins=(100, 50)
 while True:
     event, values = window.read()
 
-    #Setting user ID
+    #Setting Run ID
     if event == '-SET-':
-        if values['-ID-'] != "":
-            USER_ID = values['-ID-']
-            window['-USER-'].update(USER_ID)
-            window['-OUTPUT-'].update("User ID set", text_color='green')
+        if values['-ID-'] != "" and len(values['-ID-']) < MAXIMUM_CHARACTER_LENGTH:
+            RUN_ID = values['-ID-']
+            window['-RUN-'].update(RUN_ID)
+            window['-OUTPUT-'].update("Run ID set", text_color='green')
+        elif len(values['-ID-']) >= MAXIMUM_CHARACTER_LENGTH:
+            window['-OUTPUT-'].update("Exceeded Max Character", text_color='red')
         else:
-            window['-OUTPUT-'].update("Invalid User ID", text_color='red')
+            window['-OUTPUT-'].update("Invalid Run ID", text_color='red')
 
     #Enable or disable tracking
 
@@ -127,6 +133,8 @@ while True:
             window['-STATUS-'].update("INACTIVE", text_color='red')
             ACTIVE_TRACKING = False
 
+    if event == '-UNDO-':
+        window['-OUTPUT-'].update("Last recorded coordinates deleted", text_color='green')
 
     if event == sg.WIN_CLOSED:
         break
