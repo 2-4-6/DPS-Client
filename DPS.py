@@ -29,9 +29,14 @@ def decrypt_data(encrypted_data):
     decrypted_data = cipher_suite.decrypt(encrypted_data).decode('utf-8')
     return decrypted_data
 
+def get_token():
+    token_url = 'http://127.0.0.1:8000/get_csrf_token/'
+    response = requests.get(token_url)
+    return response.json()['csrf_token']
+
 def send_data(x_value, y_value, z_value, time):
     url = 'http://127.0.0.1:8000/postData/'
-    token_url = 'http://127.0.0.1:8000/get_csrf_token/'
+    csrf_token = get_token()
 
     encrypted_runID = encrypt_data(str(RUN_ID))
     encrypted_x = encrypt_data(str(x_value))
@@ -48,10 +53,8 @@ def send_data(x_value, y_value, z_value, time):
             "time": encrypted_time.decode('utf-8')
         }
     }
-    response = requests.get(token_url)
-    csrf_token = response.json()['csrf_token']
+    
     headers = {'X-CSRFToken': csrf_token}
-
     response = requests.post(url, json=payload, headers=headers)
 
     if response.status_code == 200:
@@ -59,6 +62,25 @@ def send_data(x_value, y_value, z_value, time):
     else:
         print(f"Failed to send data to Django backend. Status code: {response.status_code}")
 
+def delete_last():
+    url = 'http://127.0.0.1:8000/deleteLast/'
+    csrf_token = get_token()
+
+    encrypted_runID = encrypt_data(str(RUN_ID))
+
+    payload = {
+        "data": {
+            "run_id": encrypted_runID.decode('utf-8'),
+        }
+    }
+
+    headers = {'X-CSRFToken': csrf_token}
+    response = requests.post(url, json=payload, headers=headers)
+
+    if response.status_code == 200:
+        print("Data sent successfully to Django backend.")
+    else:
+        print(f"Failed to send data to Django backend. Status code: {response.status_code}")
 
 def macro(e):
     if ACTIVE_TRACKING and e.event_type == keyboard.KEY_UP:
@@ -72,7 +94,7 @@ def macro(e):
         coordinate_data = win32clipboard.GetClipboardData()
         win32clipboard.CloseClipboard()
 
-        # Example: Coordinates: x:-19022732572.526512 y:-2613335409.721847 z:-2096.384425
+        # Example: Coordinates: x:-18930720609.852791 y:-2610232694.427539 z:221270.571209
         # Verify pattern of data
         pattern =  r"Coordinates: x:(-?\d+\.\d+) y:(-?\d+\.\d+) z:(-?\d+\.\d+)"
         match = re.search(pattern, coordinate_data)
@@ -164,6 +186,7 @@ while True:
             ACTIVE_TRACKING = False
 
     if event == '-UNDO-':
+        delete_last()
         window['-OUTPUT-'].update("i havent worked on this yet", text_color='green')
 
     if event == sg.WIN_CLOSED:
