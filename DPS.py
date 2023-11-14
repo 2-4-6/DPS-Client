@@ -10,6 +10,8 @@ import re
 from cryptography.fernet import Fernet
 import datetime
 import sys
+# Compile
+# pyinstaller --onefile --noconsole --icon="Malney-Icon.ico" .\DPS.py
 
 TRIGGER_KEY = 'altgr'
 ACTIVE_TRACKING = False
