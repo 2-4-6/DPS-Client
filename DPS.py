@@ -161,7 +161,7 @@ while True:
             ACTIVE_TRACKING = False
 
     if event == '-UNDO-':
-        window['-OUTPUT-'].update("Last recorded coordinates deleted", text_color='green')
+        window['-OUTPUT-'].update("i havent worked on this yet", text_color='green')
 
     if event == sg.WIN_CLOSED:
         break
