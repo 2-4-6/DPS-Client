@@ -130,7 +130,7 @@ def macro(e):
             window['-X-'].update(x_value)
             window['-Y-'].update(y_value)
             window['-Z-'].update(z_value)
-            window['-OUTPUT-'].update("Coordinates sent successfully")
+            window['-OUTPUT-'].update("Coordinates sent successfully", text_color='green')
 
         else:
             window['-OUTPUT-'].update("Failed to obtain Coordinate data", text_color='red')
@@ -144,7 +144,7 @@ macro_thread.start()
 sg.theme('Dark Blue 1')
 
 t0 = sg.Text("Run ID", )
-i1 = sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10), expand_x=True, justification='left', background_color=sg.theme_text_color())
+i1 = sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10), expand_x=True, justification='left', background_color=sg.theme_text_color(), text_color='black')
 b1 = sg.Button('SET', key='-SET-', font=('Arial Bold', 10))
 t0_1 = sg.Text("Run ID: "), sg.Text("Run ID not set", size=(30, 1), key='-RUN-')
 t1 = sg.Text("Coordinate Data", font=('Arial Bold', 12))
