@@ -198,7 +198,7 @@ layout = [[[run_frame],
           [control_frame],
           [t5]]]
 
-window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(20, 20))
+window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(20, 20), icon='Malney-Icon.ico')
 
 # Create an event loop
 while True:
