@@ -31,6 +31,7 @@ def decrypt_data(encrypted_data):
 
 def send_data(x_value, y_value, z_value, time):
     url = 'http://127.0.0.1:8000/postData/'
+    token_url = 'http://127.0.0.1:8000/get_csrf_token/'
 
     encrypted_runID = encrypt_data(str(RUN_ID))
     encrypted_x = encrypt_data(str(x_value))
@@ -47,8 +48,11 @@ def send_data(x_value, y_value, z_value, time):
             "time": encrypted_time.decode('utf-8')
         }
     }
+    response = requests.get(token_url)
+    csrf_token = response.json()['csrf_token']
+    headers = {'X-CSRFToken': csrf_token}
 
-    response = requests.post(url, json=payload)
+    response = requests.post(url, json=payload, headers=headers)
 
     if response.status_code == 200:
         print("Data sent successfully to Django backend.")
@@ -94,7 +98,6 @@ def macro(e):
         New_time = time.time() + time_offset
         Time_passed_since_reference_in_seconds = New_time - Reference_time
 
-        print(Time_passed_since_reference_in_seconds)
         if match and RUN_ID:
             x_value = float(match.group(1))
             y_value = float(match.group(2))
