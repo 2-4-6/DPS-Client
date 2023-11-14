@@ -151,21 +151,54 @@ macro_thread.start()
 sg.theme('Dark Blue 1')
 
 t0 = sg.Text("Run ID", )
-i1 = sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10), expand_x=True, justification='left', background_color=sg.theme_text_color(), text_color='black')
+i1 = sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10),size=5, expand_x=True, justification='left', background_color=sg.theme_text_color(), text_color='black')
 b1 = sg.Button('SET', key='-SET-', font=('Arial Bold', 10))
 t0_1 = sg.Text("Run ID: "), sg.Text("Run ID not set", size=(30, 1), key='-RUN-')
-t1 = sg.Text("Coordinate Data", font=('Arial Bold', 12))
-t2 = sg.Text("X: "), sg.Text("", size=(30, 1), key='-X-')
-t3 = sg.Text("Y: "), sg.Text("", size=(30, 1), key='-Y-')
-t4 = sg.Text("Z: "), sg.Text("", size=(30, 1), key='-Z-')
+
+
+run_layout = [
+    [
+        sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10), size=(50, 1), justification='left', background_color=sg.theme_text_color(), text_color='black'),
+        sg.Button('SET', key='-SET-', font=('Arial Bold', 10))
+    ],
+    [sg.Text("Run ID: "), sg.Text("Run ID not set", size=(30, 1), key='-RUN-')]
+]
+
+run_frame = sg.Frame('Run ID', run_layout, size=(430,80))
+
+coord_layout = [
+    [sg.Text("X: "), sg.Text("", size=(30, 1), key='-X-')],
+    [sg.Text("Y: "), sg.Text("", size=(30, 1), key='-Y-')],
+    [sg.Text("Z: "), sg.Text("", size=(30, 1), key='-Z-')]
+]
+
+coord_frame = sg.Frame('Coordinate Data', coord_layout)
 t5 = sg.Text("Output: "), sg.Text("", size=(30, 1), key='-OUTPUT-', background_color='black')
-b2 = sg.Button('ENABLE/DISABLE', key='-ACTIVATE-', font=('Arial Bold', 10))
-t6 = sg.Text("INACTIVE", text_color='red', key='-STATUS-')
-b3 = sg.Button('UNDO LAST', key='-UNDO-', font=('Arial Bold', 10))
 
-layout = [[t0, i1, b1],[t0_1],[t1],[t2],[t3],[t4],[b3, b2, t6],[t5]]
+control_layout = [
+    [
+        sg.Button('UNDO LAST', key='-UNDO-', font=('Arial Bold', 10)),
+        sg.Button('ENABLE/DISABLE', key='-ACTIVATE-', font=('Arial Bold', 10)),
+        sg.Text("INACTIVE", text_color='red', key='-STATUS-')
+    ]
+]
 
-window = sg.Window("Daymar Positioning Service (DPS)", layout, margins=(100, 50))
+control_frame = sg.Frame('Controls', control_layout, size=(430,50))
+
+history_layout = [
+    [
+        sg.Text("/")
+    ]
+]
+
+history_frame = sg.Frame('Run History', history_layout, size=(131,100))
+
+layout = [[[run_frame],
+          [coord_frame, history_frame],
+          [control_frame],
+          [t5]]]
+
+window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(20, 20))
 
 # Create an event loop
 while True:
