@@ -15,6 +15,7 @@ TRIGGER_KEY = 'altgr'
 ACTIVE_TRACKING = False
 RUN_ID = ''
 MAXIMUM_CHARACTER_LENGTH = 10
+URL = 'http://127.0.0.1:8000/'
 
 
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
@@ -29,13 +30,15 @@ def decrypt_data(encrypted_data):
     decrypted_data = cipher_suite.decrypt(encrypted_data).decode('utf-8')
     return decrypted_data
 
+# Retrieve CSRF token
 def get_token():
-    token_url = 'http://127.0.0.1:8000/get_csrf_token/'
+    token_url = URL + 'get_csrf_token/'
     response = requests.get(token_url)
     return response.json()['csrf_token']
 
+# Sending coordinate data
 def send_data(x_value, y_value, z_value, time):
-    url = 'http://127.0.0.1:8000/postData/'
+    url = URL + 'postData/'
     csrf_token = get_token()
 
     encrypted_runID = encrypt_data(str(RUN_ID))
@@ -62,8 +65,9 @@ def send_data(x_value, y_value, z_value, time):
     else:
         print(f"Failed to send data to Django backend. Status code: {response.status_code}")
 
+# Delete last entry with a matching run ID
 def delete_last():
-    url = 'http://127.0.0.1:8000/deleteLast/'
+    url = URL + 'deleteLast/'
     csrf_token = get_token()
 
     encrypted_runID = encrypt_data(str(RUN_ID))
@@ -90,9 +94,12 @@ def macro(e):
         pydirectinput.press('enter')
 
         # SC saves coordinates directly to clipboard
-        win32clipboard.OpenClipboard()
-        coordinate_data = win32clipboard.GetClipboardData()
-        win32clipboard.CloseClipboard()
+        try:
+            win32clipboard.OpenClipboard()
+            coordinate_data = win32clipboard.GetClipboardData()
+            win32clipboard.CloseClipboard()
+        except:
+            window['-OUTPUT-'].update("Failed to obtain Coordinate data", text_color='red')
 
         # Example: Coordinates: x:-18930720609.852791 y:-2610232694.427539 z:221270.571209
         # Verify pattern of data
