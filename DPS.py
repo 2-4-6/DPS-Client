@@ -1,4 +1,4 @@
-import win32clipboard
+from win32 import win32clipboard
 import keyboard
 import pyautogui
 import pydirectinput
