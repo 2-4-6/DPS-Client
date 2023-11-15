@@ -88,6 +88,19 @@ def delete_last():
     else:
         print(f"Failed to send data to Django backend. Status code: {response.status_code}")
 
+def get_runs(window):
+    url = URL +'get_runs/'
+
+    try: 
+        response = requests.get(url)
+        run_ids = response.json()
+
+        run_ids_string = '\n'.join(run_ids)
+        window['-HISTORY-'].update(run_ids_string)
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
+        window['-OUTPUT-'].update("Failed to Retrieve History", text_color='red')
+
 def macro(e):
     if ACTIVE_TRACKING and e.event_type == keyboard.KEY_UP:
         time.sleep(0.05)
@@ -147,12 +160,13 @@ def macro(e):
         else:
             window['-OUTPUT-'].update("Failed to obtain Coordinate data", text_color='red')
 
-# Macro in separate thread
+# ---------------------------------------------------------------- initial Macro ----------------------------------------------------------------
+
 macro_thread = threading.Thread(target=keyboard.on_release_key, args=(TRIGGER_KEY, macro))
 macro_thread.daemon = True
 macro_thread.start()
 
-# Create the PySimpleGUI window
+# ----------------------------------------------------------------Create the PySimpleGUI window----------------------------------------------------------------
 sg.theme('Dark Blue 1')
 
 t0 = sg.Text("Run ID", )
@@ -169,7 +183,7 @@ run_layout = [
     [sg.Text("Run ID: "), sg.Text("Run ID not set", size=(30, 1), key='-RUN-')]
 ]
 
-run_frame = sg.Frame('Run ID', run_layout, size=(430,80))
+run_frame = sg.Frame('Run ID', run_layout, size=(440,80))
 
 coord_layout = [
     [sg.Text("X: "), sg.Text("", size=(30, 1), key='-X-')],
@@ -183,20 +197,21 @@ t5 = sg.Text("Output: ", size=(6, 1)), sg.Text("", size=(45, 1), key='-OUTPUT-',
 control_layout = [
     [
         sg.Button('UNDO LAST', key='-UNDO-', font=('Arial Bold', 10)),
+        sg.Button('RELOAD HISTORY', key='-RELOAD-', font=('Arial Bold', 10)),
         sg.Button('ENABLE/DISABLE', key='-ACTIVATE-', font=('Arial Bold', 10)),
         sg.Text("INACTIVE", text_color='red', key='-STATUS-')
     ]
 ]
 
-control_frame = sg.Frame('Controls', control_layout, size=(430,50))
+control_frame = sg.Frame('Controls', control_layout, size=(440,50))
 
 history_layout = [
     [
-        sg.Multiline(default_text='WIP', size=(50, 10), key='-HISTORY-', autoscroll=True, enable_events=True, background_color='white', text_color='black')
+        sg.Multiline(default_text='Reload History to view', size=(60, 10), key='-HISTORY-', autoscroll=True, enable_events=True, background_color='white', text_color='black')
     ]
 ]
 
-history_frame = sg.Frame('Run History', history_layout, size=(131,100))
+history_frame = sg.Frame('Run History', history_layout, size=(141,100))
 
 output_layout = [
     [
@@ -205,7 +220,7 @@ output_layout = [
 
 ]
 
-output_frame = sg.Frame('Console', output_layout, size=(430,50))
+output_frame = sg.Frame('Console', output_layout, size=(440,50))
 
 instruction_layout = [
     [
@@ -223,13 +238,13 @@ main_layout = [[run_frame],
           [control_frame],
           [output_frame]]
 
-main_frame = sg.Frame('Connection', main_layout, size=(450,330))
+main_frame = sg.Frame('Connection', main_layout, size=(460,330))
 
 layout = [[instruction_frame, main_frame]]
 
-window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(10, 10), icon='Malney-Icon.ico')
+window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(5, 5), icon='Malney-Icon.ico')
 
-# Create an event loop
+# ---------------------------------------------------------------- Event Handler ----------------------------------------------------------------
 while True:
     event, values = window.read()
 
@@ -240,7 +255,7 @@ while True:
             window['-RUN-'].update(RUN_ID)
             window['-OUTPUT-'].update("Run ID set", text_color='green')
         elif len(values['-ID-']) >= MAXIMUM_CHARACTER_LENGTH:
-            window['-OUTPUT-'].update("Exceeded Max Character", text_color='red')
+            window['-OUTPUT-'].update("Exceeded Maximum Character Count (9)", text_color='red')
         else:
             window['-OUTPUT-'].update("Invalid Run ID", text_color='red')
 
@@ -257,9 +272,12 @@ while True:
     if event == '-UNDO-':
         try:
             delete_last()
-            window['-OUTPUT-'].update("Last Entry Deleted", text_color='green')
+            window['-OUTPUT-'].update("Delete request sent", text_color='green')
         except:
             window['-OUTPUT-'].update("Failed to Delete", text_color='red')
+
+    if event == '-RELOAD-':
+        get_runs(window)
 
     if event == sg.WIN_CLOSED:
         break
