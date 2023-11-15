@@ -192,7 +192,7 @@ control_frame = sg.Frame('Controls', control_layout, size=(430,50))
 
 history_layout = [
     [
-        sg.Text("WIP", background_color='white', text_color='black')
+        sg.Multiline(default_text='WIP', size=(50, 10), key='-HISTORY-', autoscroll=True, enable_events=True, background_color='white', text_color='black')
     ]
 ]
 
@@ -223,11 +223,11 @@ main_layout = [[run_frame],
           [control_frame],
           [output_frame]]
 
-main_frame = sg.Frame('test', main_layout, size=(450,330))
+main_frame = sg.Frame('Connection', main_layout, size=(450,330))
 
 layout = [[instruction_frame, main_frame]]
 
-window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(20, 20), icon='Malney-Icon.ico')
+window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(10, 10), icon='Malney-Icon.ico')
 
 # Create an event loop
 while True:
@@ -255,8 +255,11 @@ while True:
             ACTIVE_TRACKING = False
 
     if event == '-UNDO-':
-        delete_last()
-        window['-OUTPUT-'].update("i havent worked on this yet", text_color='green')
+        try:
+            delete_last()
+            window['-OUTPUT-'].update("Last Entry Deleted", text_color='green')
+        except:
+            window['-OUTPUT-'].update("Failed to Delete", text_color='red')
 
     if event == sg.WIN_CLOSED:
         break
