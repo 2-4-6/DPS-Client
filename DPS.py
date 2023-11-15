@@ -133,13 +133,16 @@ def macro(e):
             x_value = float(match.group(1))
             y_value = float(match.group(2))
             z_value = float(match.group(3))
-       
-            send_data(x_value, y_value, z_value, Time_passed_since_reference_in_seconds)
 
-            window['-X-'].update(x_value)
-            window['-Y-'].update(y_value)
-            window['-Z-'].update(z_value)
-            window['-OUTPUT-'].update("Coordinates sent successfully", text_color='green')
+            try:
+                send_data(x_value, y_value, z_value, Time_passed_since_reference_in_seconds)
+
+                window['-X-'].update(x_value)
+                window['-Y-'].update(y_value)
+                window['-Z-'].update(z_value)
+                window['-OUTPUT-'].update("Coordinates sent successfully", text_color='green')
+            except:
+                window['-OUTPUT-'].update("Connection Failed", text_color='red')
 
         else:
             window['-OUTPUT-'].update("Failed to obtain Coordinate data", text_color='red')
@@ -175,7 +178,7 @@ coord_layout = [
 ]
 
 coord_frame = sg.Frame('Coordinate Data', coord_layout)
-t5 = sg.Text("Output: "), sg.Text("", size=(30, 1), key='-OUTPUT-', background_color='black')
+t5 = sg.Text("Output: ", size=(6, 1)), sg.Text("", size=(45, 1), key='-OUTPUT-', background_color='black')
 
 control_layout = [
     [
@@ -189,16 +192,40 @@ control_frame = sg.Frame('Controls', control_layout, size=(430,50))
 
 history_layout = [
     [
-        sg.Text("/")
+        sg.Text("WIP", background_color='white', text_color='black')
     ]
 ]
 
 history_frame = sg.Frame('Run History', history_layout, size=(131,100))
 
-layout = [[[run_frame],
+output_layout = [
+    [
+        sg.Text("", size=(52, 1), key='-OUTPUT-', background_color='black')
+    ]
+
+]
+
+output_frame = sg.Frame('Console', output_layout, size=(430,50))
+
+instruction_layout = [
+    [
+        sg.Text("RUN ID \n- To start a new run, \nenter a unique ID.\n- To continue a run,\nenter an existing ID\n\n"+
+                "CONTROLS:\nUNDO LAST \ndeletes the last \ncoordinate input with \nthe matching Run ID\n"+
+                "ENABLE/DISABLE\nActivates and \nDeactivates the \nkeybind"),
+
+    ]
+]
+
+instruction_frame = sg.Frame('How to use: ', instruction_layout, size=(150,330))
+
+main_layout = [[run_frame],
           [coord_frame, history_frame],
           [control_frame],
-          [t5]]]
+          [output_frame]]
+
+main_frame = sg.Frame('test', main_layout, size=(450,330))
+
+layout = [[instruction_frame, main_frame]]
 
 window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(20, 20), icon='Malney-Icon.ico')
 
