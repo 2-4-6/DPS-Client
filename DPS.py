@@ -17,7 +17,7 @@ TRIGGER_KEY = 'altgr'
 ACTIVE_TRACKING = False
 RUN_ID = ''
 MAXIMUM_CHARACTER_LENGTH = 10
-URL = 'https://dps.chg.dev/'
+URL = 'https://navigation.mb-industries.co.uk/'
 
 
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
