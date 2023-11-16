@@ -17,7 +17,7 @@ TRIGGER_KEY = 'altgr'
 ACTIVE_TRACKING = False
 RUN_ID = ''
 MAXIMUM_CHARACTER_LENGTH = 10
-URL = 'http://127.0.0.1:8000/'
+URL = 'https://dps.chg.dev/'
 
 
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
