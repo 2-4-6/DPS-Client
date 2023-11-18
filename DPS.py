@@ -175,11 +175,13 @@ sg.theme('Dark Blue 1')
 
 # ----------------------------------------------------------------PySimpleGUI Login Layout----------------------------------------------------------------
 login_layout = [
-    [sg.Text("Username", key='-USERNAME-')],
+    [sg.Image('MB-White.png',
+   expand_x=True, expand_y=True)],
+    [sg.Text("Username", key='-USER-')],
     [sg.Input('', enable_events=True, key='-USERNAME-', font=('Arial Bold', 10), size=(40, 1), justification='left', background_color=sg.theme_text_color(), text_color='black')],
     [sg.Text("Key", key='-KEY-')],
-    [sg.Input('', enable_events=True, key='-APIKEY-', font=('Arial Bold', 10), size=(40, 1), justification='left', background_color=sg.theme_text_color(), text_color='black')],
-    [sg.Button('Login', key='-LOGIN-', font=('Arial Bold', 10))]
+    [sg.Input('', enable_events=True, key='-APIKEY-', font=('Arial Bold', 10), size=(40, 1), justification='left', background_color=sg.theme_text_color(), text_color='black', password_char='*')],
+    [sg.Button('Show Password', key='-SHOWPASS-', font=('Arial Bold', 10)), sg.Button('Login', key='-LOGIN-', font=('Arial Bold', 10))]
 ]
 
 # ----------------------------------------------------------------PySimpleGUI Main Layout----------------------------------------------------------------
@@ -257,16 +259,24 @@ window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(5, 5), ic
 
 # ---------------------------------------------------------------- Event Handler ----------------------------------------------------------------
 layout = 1
+password = True
 
 while True:
     event, values = window.read()
+    if event == '-SHOWPASS-':
+        password = not password
+        password_char = '*' if password else ''
+        window['-APIKEY-'].update(password_char=password_char)
 
     # Login and verify details
     if event == '-LOGIN-':
-        #verify API and user here
-        window[f'-COL{layout}-'].update(visible=False)
-        layout += 1
-        window[f'-COL{layout}-'].update(visible=True)
+        USERNAME = values['-USERNAME-']
+        API_KEY = values['-APIKEY-']
+        # Verify API and user here
+        if API_KEY and USERNAME:
+            window[f'-COL{layout}-'].update(visible=False)
+            layout += 1
+            window[f'-COL{layout}-'].update(visible=True)
 
     #Setting Run ID
     if event == '-SET-':
