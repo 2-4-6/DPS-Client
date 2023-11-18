@@ -22,7 +22,6 @@ URL = 'https://navigation.mb-industries.co.uk/'
 USERNAME = ''
 API_KEY = ''
 
-
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
 
 def encrypt_data(data):
@@ -40,6 +39,14 @@ def get_token():
     token_url = URL + 'get_csrf_token/'
     response = requests.get(token_url)
     return response.json()['csrf_token']
+
+# Verify Login 
+def verify_login():
+    # Complete URL
+    url = URL
+
+    encrypted_username = encrypt_data(str(USERNAME))
+    encrypted_key = encrypt_data(str(API_KEY))
 
 # Sending coordinate data
 def send_data(x_value, y_value, z_value, time):
