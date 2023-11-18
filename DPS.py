@@ -19,6 +19,9 @@ RUN_ID = ''
 MAXIMUM_CHARACTER_LENGTH = 10
 URL = 'https://navigation.mb-industries.co.uk/'
 
+USERNAME = ''
+API_KEY = ''
+
 
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
 
@@ -169,12 +172,17 @@ macro_thread.start()
 # ----------------------------------------------------------------Create the PySimpleGUI window----------------------------------------------------------------
 sg.theme('Dark Blue 1')
 
-t0 = sg.Text("Run ID", )
-i1 = sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10),size=5, expand_x=True, justification='left', background_color=sg.theme_text_color(), text_color='black')
-b1 = sg.Button('SET', key='-SET-', font=('Arial Bold', 10))
-t0_1 = sg.Text("Run ID: "), sg.Text("Run ID not set", size=(30, 1), key='-RUN-')
 
+# ----------------------------------------------------------------PySimpleGUI Login Layout----------------------------------------------------------------
+login_layout = [
+    [sg.Text("Username", key='-USERNAME-')],
+    [sg.Input('', enable_events=True, key='-USERNAME-', font=('Arial Bold', 10), size=(40, 1), justification='left', background_color=sg.theme_text_color(), text_color='black')],
+    [sg.Text("Key", key='-KEY-')],
+    [sg.Input('', enable_events=True, key='-APIKEY-', font=('Arial Bold', 10), size=(40, 1), justification='left', background_color=sg.theme_text_color(), text_color='black')],
+    [sg.Button('Login', key='-LOGIN-', font=('Arial Bold', 10))]
+]
 
+# ----------------------------------------------------------------PySimpleGUI Main Layout----------------------------------------------------------------
 run_layout = [
     [
         sg.Input('', enable_events=True, key='-ID-', font=('Arial Bold', 10), size=(50, 1), justification='left', background_color=sg.theme_text_color(), text_color='black'),
@@ -240,13 +248,25 @@ main_layout = [[run_frame],
 
 main_frame = sg.Frame('Connection', main_layout, size=(460,330))
 
-layout = [[instruction_frame, main_frame]]
+verified_layout = [[instruction_frame, main_frame]]
+
+layout = [[sg.Column(login_layout, key='-COL1-'), 
+           sg.Column(verified_layout, key='-COL2-', visible=False)]]
 
 window = sg.Window("Daymar Positioning System (DPS)", layout, margins=(5, 5), icon='Malney-Icon.ico')
 
 # ---------------------------------------------------------------- Event Handler ----------------------------------------------------------------
+layout = 1
+
 while True:
     event, values = window.read()
+
+    # Login and verify details
+    if event == '-LOGIN-':
+        #verify API and user here
+        window[f'-COL{layout}-'].update(visible=False)
+        layout += 1
+        window[f'-COL{layout}-'].update(visible=True)
 
     #Setting Run ID
     if event == '-SET-':
