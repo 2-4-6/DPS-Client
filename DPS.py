@@ -26,6 +26,8 @@ API_KEY = ""
 auth=(USERNAME, API_KEY)
 
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
+# 123456789
+# 638ff9c70d5cf3f36fcf4423e95b8bffc4bb746f3ae11c653bfc5fa206b833e8
 
 # Add resource path to include images into compiled exe
 def resource_path(relative_path):
@@ -47,6 +49,18 @@ def get_token():
     token_url = URL + 'get_csrf_token/'
     response = requests.get(token_url)
     return response.json()['csrf_token']
+
+# Verifies correct auth. Subsequent auth checks still apply, this just ensures correct details before proceeding
+def login():
+    url = URL + 'verify_user/'
+    csrf_token = get_token()
+
+    headers = {'X-CSRFToken': csrf_token}
+    response = requests.post(url, headers=headers, auth=auth)
+    # print(response.status_code)
+
+    if response.status_code == 200:
+        return True
 
 # Sending coordinate data
 def send_data(x_value, y_value, z_value, time):
@@ -170,7 +184,7 @@ def macro(e):
         else:
             window['-OUTPUT-'].update("Failed to obtain Coordinate data", text_color='red')
 
-# ---------------------------------------------------------------- initial Macro ----------------------------------------------------------------
+# ---------------------------------------------------------------- Initiate Macro ----------------------------------------------------------------
 
 macro_thread = threading.Thread(target=keyboard.on_release_key, args=(TRIGGER_KEY, macro))
 macro_thread.daemon = True
@@ -280,9 +294,8 @@ while True:
         USERNAME = values['-USERNAME-']
         API_KEY = values['-APIKEY-']
         auth=(USERNAME, API_KEY)
-
         # Verify API and user here
-        if API_KEY and USERNAME:
+        if API_KEY and USERNAME and login():
             window[f'-COL{layout}-'].update(visible=False)
             layout += 1
             window[f'-COL{layout}-'].update(visible=True)
