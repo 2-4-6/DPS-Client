@@ -10,19 +10,27 @@ import re
 from cryptography.fernet import Fernet
 import datetime
 import sys
+import os
+
 # Compile
-# pyinstaller --onefile --noconsole --icon="Malney-Icon.ico" .\DPS.py
+# pyinstaller --onefile --noconsole --icon="Malney-Icon.ico" --uac-admin --add-data "MB-White.png;." .\DPS.py
 
 TRIGGER_KEY = 'altgr'
 ACTIVE_TRACKING = False
 RUN_ID = ''
 MAXIMUM_CHARACTER_LENGTH = 10
-URL = 'https://navigation.mb-industries.co.uk/'
+URL = 'http://127.0.0.1:8000/'
 
-USERNAME = ''
-API_KEY = ''
+USERNAME = ""
+API_KEY = ""
+auth=(USERNAME, API_KEY)
 
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
+
+# Add resource path to include images into compiled exe
+def resource_path(relative_path):
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 def encrypt_data(data):
     cipher_suite = Fernet(encryption_key)
@@ -39,14 +47,6 @@ def get_token():
     token_url = URL + 'get_csrf_token/'
     response = requests.get(token_url)
     return response.json()['csrf_token']
-
-# Verify Login 
-def verify_login():
-    # Complete URL
-    url = URL
-
-    encrypted_username = encrypt_data(str(USERNAME))
-    encrypted_key = encrypt_data(str(API_KEY))
 
 # Sending coordinate data
 def send_data(x_value, y_value, z_value, time):
@@ -70,7 +70,7 @@ def send_data(x_value, y_value, z_value, time):
     }
     
     headers = {'X-CSRFToken': csrf_token}
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, json=payload, headers=headers, auth=auth)
 
     if response.status_code == 200:
         print("Data sent successfully to Django backend.")
@@ -90,8 +90,8 @@ def delete_last():
         }
     }
 
-    headers = {'X-CSRFToken': csrf_token}
-    response = requests.post(url, json=payload, headers=headers)
+    headers = {'X-CSRFToken': csrf_token,}
+    response = requests.post(url, json=payload, headers=headers, auth=auth)
 
     if response.status_code == 200:
         print("Data sent successfully to Django backend.")
@@ -102,9 +102,9 @@ def get_runs(window):
     url = URL +'get_runs/'
 
     try: 
-        response = requests.get(url)
+        response = requests.get(url, auth=auth)
         run_ids = response.json()
-
+        
         run_ids_string = '\n'.join(run_ids)
         window['-HISTORY-'].update(run_ids_string)
     except requests.exceptions.RequestException as e:
@@ -182,7 +182,7 @@ sg.theme('Dark Blue 1')
 
 # ----------------------------------------------------------------PySimpleGUI Login Layout----------------------------------------------------------------
 login_layout = [
-    [sg.Image('MB-White.png',
+    [sg.Image(resource_path('MB-White.png'),
    expand_x=True, expand_y=True)],
     [sg.Text("Username", key='-USER-')],
     [sg.Input('', enable_events=True, key='-USERNAME-', font=('Arial Bold', 10), size=(40, 1), justification='left', background_color=sg.theme_text_color(), text_color='black')],
@@ -279,6 +279,8 @@ while True:
     if event == '-LOGIN-':
         USERNAME = values['-USERNAME-']
         API_KEY = values['-APIKEY-']
+        auth=(USERNAME, API_KEY)
+
         # Verify API and user here
         if API_KEY and USERNAME:
             window[f'-COL{layout}-'].update(visible=False)
