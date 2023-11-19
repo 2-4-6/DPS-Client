@@ -52,15 +52,18 @@ def get_token():
 
 # Verifies correct auth. Subsequent auth checks still apply, this just ensures correct details before proceeding
 def login():
-    url = URL + 'verify_user/'
-    csrf_token = get_token()
+    try:
+        url = URL + 'verify_user/'
+        csrf_token = get_token()
 
-    headers = {'X-CSRFToken': csrf_token}
-    response = requests.post(url, headers=headers, auth=auth)
-    # print(response.status_code)
+        headers = {'X-CSRFToken': csrf_token}
+        response = requests.post(url, headers=headers, auth=auth)
+        # print(response.status_code)
 
-    if response.status_code == 200:
-        return True
+        if response.status_code == 200:
+            return True
+    except:
+        window['-HIDDEN_LOG-'].update("Login Error :/", text_color='red')
 
 # Sending coordinate data
 def send_data(x_value, y_value, z_value, time):
@@ -202,7 +205,8 @@ login_layout = [
     [sg.Input('', enable_events=True, key='-USERNAME-', font=('Arial Bold', 10), size=(40, 1), justification='left', background_color=sg.theme_text_color(), text_color='black')],
     [sg.Text("Key", key='-KEY-')],
     [sg.Input('', enable_events=True, key='-APIKEY-', font=('Arial Bold', 10), size=(40, 1), justification='left', background_color=sg.theme_text_color(), text_color='black', password_char='*')],
-    [sg.Button('Show Password', key='-SHOWPASS-', font=('Arial Bold', 10)), sg.Button('Login', key='-LOGIN-', font=('Arial Bold', 10))]
+    [sg.Button('Show Password', key='-SHOWPASS-', font=('Arial Bold', 10)), sg.Button('Login', key='-LOGIN-', font=('Arial Bold', 10))],
+    [sg.Text("", key='-HIDDEN_LOG-', visible=True)]
 ]
 
 # ----------------------------------------------------------------PySimpleGUI Main Layout----------------------------------------------------------------
