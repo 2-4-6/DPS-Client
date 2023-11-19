@@ -62,6 +62,8 @@ def login():
 
         if response.status_code == 200:
             return True
+        else:
+            window['-HIDDEN_LOG-'].update(" Incorrect Login Details", text_color='red')
     except:
         window['-HIDDEN_LOG-'].update("Login Error :/", text_color='red')
 
@@ -316,7 +318,6 @@ while True:
             window['-OUTPUT-'].update("Invalid Run ID", text_color='red')
 
     #Enable or disable tracking
-
     if event == '-ACTIVATE-':
         if ACTIVE_TRACKING == False:
             window['-STATUS-'].update("ACTIVE", text_color='green')
