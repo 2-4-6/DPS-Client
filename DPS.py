@@ -19,7 +19,7 @@ TRIGGER_KEY = 'altgr'
 ACTIVE_TRACKING = False
 RUN_ID = ''
 MAXIMUM_CHARACTER_LENGTH = 10
-URL = 'http://127.0.0.1:8000/'
+URL = 'https://navigation.mb-industries.co.uk/'
 
 USERNAME = ""
 API_KEY = ""
@@ -302,6 +302,7 @@ while True:
         auth=(USERNAME, API_KEY)
         # Verify API and user here
         if API_KEY and USERNAME and login():
+        # if API_KEY and USERNAME:
             window[f'-COL{layout}-'].update(visible=False)
             layout += 1
             window[f'-COL{layout}-'].update(visible=True)
