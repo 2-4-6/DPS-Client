@@ -26,8 +26,6 @@ API_KEY = ""
 auth=(USERNAME, API_KEY)
 
 encryption_key = b'jM4DlcXDBO6A91f4YjJ5_n7YBtf07eHdXrAXzQos7fI='
-# 123456789
-# 638ff9c70d5cf3f36fcf4423e95b8bffc4bb746f3ae11c653bfc5fa206b833e8
 
 # Add resource path to include images into compiled exe
 def resource_path(relative_path):
