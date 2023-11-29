@@ -1,0 +1,3 @@
+Navigation tool, designed for route plotting during Daymar Rally, within the game Star Citizen by Cloud Imperium Games.
+This client obtains 3D Coordinate data from ingame using the "/showlocation" command. 
+The coordinate data is sent to a server where the data is calculated into latitude and longitude values and plotted on the [Daymar Positioning System site](https://daymar-positioning-system.vercel.app/) and displayed when the corresponding "run id" is entered.
