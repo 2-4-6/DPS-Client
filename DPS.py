@@ -158,11 +158,9 @@ def macro(e):
             c = ntplib.NTPClient()
             response = c.request('europe.pool.ntp.org', version=3)
             server_time = response.tx_time
-
             time_offset = response.offset
-        except:
-            print("Error: Could not get time from NTP server")
-            sys.stdout.flush()
+        except Exception as e:
+            window['-OUTPUT-'].update(f"NTP Request Error: {e}", text_color='red')
             time_offset = 0
 
         # print('Time_offset:', time_offset)
