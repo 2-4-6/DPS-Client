@@ -140,8 +140,8 @@ def macro(e):
             win32clipboard.OpenClipboard()
             coordinate_data = win32clipboard.GetClipboardData()
             win32clipboard.CloseClipboard()
-        except:
-            window['-OUTPUT-'].update("Failed to obtain Coordinate data", text_color='red')
+        except Exception as e:
+            window['-OUTPUT-'].update(f"Clipboard Error: {e}", text_color='red')
 
         # Example: /showlocation
 
