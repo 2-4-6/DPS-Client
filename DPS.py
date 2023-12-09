@@ -62,8 +62,8 @@ def login():
             return True
         else:
             window['-HIDDEN_LOG-'].update(" Incorrect Login Details", text_color='red')
-    except:
-        window['-HIDDEN_LOG-'].update("Login Error :/", text_color='red')
+    except requests.exceptions.RequestException as e:
+        window['-HIDDEN_LOG-'].update(f"Login Error: {e}", text_color='red')
 
 # Sending coordinate data
 def send_data(x_value, y_value, z_value, time):
@@ -143,7 +143,8 @@ def macro(e):
         except:
             window['-OUTPUT-'].update("Failed to obtain Coordinate data", text_color='red')
 
-        # Example: Coordinates: x:-18930720609.852791 y:-2610232694.427539 z:221270.571209
+        # Example: /showlocation
+
         # Verify pattern of data
         pattern =  r"Coordinates: x:(-?\d+\.\d+) y:(-?\d+\.\d+) z:(-?\d+\.\d+)"
         match = re.search(pattern, coordinate_data)
